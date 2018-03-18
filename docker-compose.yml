@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+    shellinabox-cling:
+        build: .
+        image: liudonghua123/shellinabox-cling:latest
+        ports:
+            - "4200:4200"
+        restart: always
