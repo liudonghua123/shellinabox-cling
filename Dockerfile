@@ -29,6 +29,6 @@ RUN useradd -ms /bin/bash cling
 #USER cling
 WORKDIR /home/cling
 #ADD https://github.com/rianadon/shellinabox-md-style/raw/master/00%2BBlack%20on%20White.css /etc/shellinabox/options-enabled/
-COPY ["00+Black on White.css" ,"/00+Black_on_White.css"]
+COPY ["00+Black on White.css" ,"/"]
 
-CMD ["shellinaboxd", "-t", "--css", "/00+Black_on_White.css", "-s", "/cling:cling:cling:HOME:/usr/local/bin/cling"]
+CMD ["shellinaboxd", "-t", "-s", "/cling:cling:cling:HOME:/usr/local/bin/cling", "--css", "/00+Black on White.css"]
