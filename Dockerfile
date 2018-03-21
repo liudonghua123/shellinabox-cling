@@ -1,37 +1,47 @@
-FROM debian:latest
+FROM ubuntu:latest
+
+MAINTAINER liudonghua123 <liudonghua123@gmail.com>
+
+ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update
 
-RUN apt-get -qq -y install git
-RUN apt-get -qq -y install shellinabox
-RUN apt-get -qq -y install build-essential cmake
+# install build prerequisites
+RUN apt-get -y install git build-essential cmake python
 
+# build cling
 RUN mkdir -p /code
-WORKDIR /code
-RUN git clone http://root.cern.ch/git/llvm.git src
-WORKDIR /code/src
-RUN git checkout cling-patches
+RUN cd /code  && git clone http://root.cern.ch/git/llvm.git src
+RUN cd /code/src/ && git checkout cling-patches
 RUN mkdir -p /code/src/tools
-WORKDIR /code/src/tools
-RUN git clone http://root.cern.ch/git/cling.git
-RUN git clone http://root.cern.ch/git/clang.git
-WORKDIR /code/src/tools/clang
-RUN git checkout cling-patches
-WORKDIR /code/
-RUN mkdir build
+RUN cd /code/src/tools && git clone http://root.cern.ch/git/cling.git
+RUN cd /code/src/tools && git clone http://root.cern.ch/git/clang.git
+RUN cd /code/src/tools/clang && git checkout cling-patches
+RUN mkdir -p /code/build
 WORKDIR /code/build
-RUN apt-get -qq -y install python
 RUN cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release ../src
 RUN cmake --build .
 RUN cmake --build . --target install
 
-RUN useradd -ms /bin/bash cling
-#USER cling
-WORKDIR /home/cling
-#ADD https://github.com/rianadon/shellinabox-md-style/raw/master/00%2BBlack%20on%20White.css /etc/shellinabox/options-enabled/
-COPY ["00+Black on White.css" ,"/"]
+# install shellinabox
+RUN apt-get -y install shellinabox
+# copy shellinabox themes
 COPY ["shellinabox-themes", "/usr/local/share/shellinabox"]
 
-CMD ["shellinaboxd", "-t", "-s", "/cling:cling:cling:HOME:/usr/local/bin/cling", "--static-file=styles.css:/usr/local/share/shellinabox/shellinabox.css", "--user-css=Tomorrow Light:+/usr/local/share/shellinabox/theme-tomorrow-light.css,Tomorrow Dark:-/usr/local/share/shellinabox/theme-tomorrow-dark.css"]
+# do some cleanup
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
+RUN useradd -ms /bin/bash cling
+RUN echo "root:root" | chpasswd
+RUN echo "cling:cling" | chpasswd
+
+# set default user and cwd
+# because we want to use /:LOGIN feature, so the default user must be root
+USER root
+WORKDIR /home/cling
+
+CMD ["shellinaboxd", "-t", "-s", "/:LOGIN", \
+"-s", "/cling:cling:cling:HOME:/usr/local/bin/cling", \
+"--static-file=styles.css:/usr/local/share/shellinabox/shellinabox.css", \
+"--user-css=Tomorrow Light:+/usr/local/share/shellinabox/theme-tomorrow-light.css,Tomorrow Dark:-/usr/local/share/shellinabox/theme-tomorrow-dark.css"]
 

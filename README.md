@@ -7,17 +7,18 @@ This is a simple docker container which contains shellinabox and cling. And some
 1. mkdir a directory named `shellinabox-cling` or other names.
 2. cd `shellinabox-cling`
 3. create `docker-compose.yml` file which contains belows
+
 ```
 version: '2'
 
 services:
     shellinabox-cling:
-        build: .
         image: liudonghua123/shellinabox-cling:latest
         ports:
             - "4200:4200"
         restart: always
 ```
+
 4. run `docker-compose up -d`
 
 ### License
